@@ -1,6 +1,6 @@
 ---
 title: "Peer Review Three"
-output: 
+output:
   flexdashboard::flex_dashboard:
     orientation: columns
     vertical_layout: fill
@@ -8,73 +8,55 @@ runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
+# Import the necessary libraries:
 library(flexdashboard)
+library(shiny)
 library(tidyverse)
 library(plotly)
-library(shiny)
 
-dat<-read_csv(url("https://www.dropbox.com/s/4ebgnkdhhxo5rac/cel_volden_wiseman%20_coursera.csv?raw=1"))
-
-dat$Party<-recode(dat$dem,`1`="Democrat",`0`="Republican")
-
-
-#######HINT: for Chart D, you'll need to set the height of the renderPlot, using the height argument. Try a value of 750.
-
-#####some data management functions are already included. You need to add the visualization functions.
-
+# Import the data:
+dat <- readr::read_csv("cel_volden_wiseman_coursera.csv")
+dat$Party <- dplyr::recode(dat$dem, `0` = "Republican", `1` = "Democrat")
 ```
-
 
 Page 1
 ======
 
 ### Chart A
 
-
 ```{r}
-dat %>% 
-  drop_na() %>% 
-  filter(year>1979) %>% 
-  group_by(year,Party) %>% 
-  summarise(passed=sum(all_pass)) %>% 
-
-
+dat %>%
+    tidyr::drop_na() %>%
+    dplyr::filter(year > 1979) %>%
+    dplyr::group_by(year, Party) %>%
+    dplyr::summarise(passed = sum(all_pass)) %>%
 ```
-
 
 ### Chart B
 
 ```{r}
-
-dat%>%
-  drop_na()%>%
-  filter(congress==110) %>%
-  ggplot
+dat %>%
+    tidyr::drop_na() %>%
+    dplyr::filter(congress == 110) %>%
+    ggplot2::ggplot
 ```
-
-
 
 ### Chart C
 
 ```{r}
-dat%>%
-  drop_na()%>%
-  filter(congress==110) %>%
-  ggplot(
+dat %>%
+    tidyr::drop_na() %>%
+    dplyr::filter(congress == 110) %>%
+    ggplot2::ggplot
 ```
-
 
 ### Chart D
 
 ```{r}
-
-####hint: this figure uses selectInput with the multiple option set to true and with the options set up so that all states are initially selected.
-
-
-dat %>% 
-  group_by(st_name) %>% 
-  filter(congress>=110) %>%
-  summarise(passed=sum(all_pass))
-
+# Set height of renderPlot. Try height = 750.
+# Use selectInput with multiple = TRUE. All states are initially selected.
+dat %>%
+    dplyr::group_by(st_name) %>%
+    dplyr::filter(congress >= 110) %>%
+    dplyr::summarise(passed = sum(all_pass))
 ```
-
