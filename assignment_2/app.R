@@ -95,7 +95,12 @@ ui <- shiny::navbarPage(
             ),
 
             # Data table on the main panel:
-            shiny::mainPanel(DT::dataTableOutput(outputId = "data_table"))
+            shiny::mainPanel(
+                DT::dataTableOutput(
+                    outputId = "data_table",
+                    height = 500
+                )
+            )
 
         )
 
