@@ -135,7 +135,7 @@ shiny::renderPlot(
     {
         dat %>%
             dplyr::group_by(st_name) %>%
-            dplyr::filter(congress >= 110 & st_name %in% input$state) %>%
+            dplyr::filter(congress == 110 & st_name %in% input$state) %>%
             dplyr::summarise(passed = sum(all_pass)) %>%
             ggplot2::ggplot(mapping = ggplot2::aes(x = passed, y = st_name)) +
                 ggplot2::geom_col() +
