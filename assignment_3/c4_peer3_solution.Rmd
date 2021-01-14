@@ -24,39 +24,129 @@ Page 1
 
 ### Chart A
 
-```{r}
+```{r chart_a}
 dat %>%
     tidyr::drop_na() %>%
     dplyr::filter(year > 1979) %>%
     dplyr::group_by(year, Party) %>%
     dplyr::summarise(passed = sum(all_pass)) %>%
+    ggplot2::ggplot(
+        mapping = ggplot2::aes(
+            x = year,
+            y = passed,
+            fill = Party)) +
+        ggplot2::geom_area() +
+        ggplot2::labs(
+            x = "Year",
+            y = "All Bills Passed",
+            title = "Number of Bills Passed Since 1980") +
+        ggplot2::scale_fill_manual(
+            values = c("Democrat" = "blue", "Republican" = "red"))
 ```
+
+Page 2 {data-orientation=columns}
+=================================
+
+Column
+------
 
 ### Chart B
 
-```{r}
-dat %>%
+```{r chart_b}
+# Create the `ggplot` figure:
+ggplot_b <- dat %>%
     tidyr::drop_na() %>%
     dplyr::filter(congress == 110) %>%
-    ggplot2::ggplot
+    ggplot2::ggplot(
+        mapping = ggplot2::aes(
+            x = votepct,
+            y = all_pass,
+            color = Party)) +
+        ggplot2::geom_smooth(formula = y ~ x, method = "loess") +
+        ggplot2::geom_point() +
+        ggplot2::labs(
+            x = "Vote Pct.",
+            y = "All Pass",
+            title = "Passage and Vote Pct., 110th Congress") +
+        ggplot2::scale_color_manual(
+            values = c("Democrat" = "blue", "Republican" = "red"))
+
+# Use the `ggplot` figure to create the `plotly` figure:
+plotly::ggplotly(ggplot_b)
 ```
+
+Column
+------
 
 ### Chart C
 
-```{r}
-dat %>%
+```{r chart_c}
+# Create the `ggplot` figure:
+ggplot_c <- dat %>%
     tidyr::drop_na() %>%
     dplyr::filter(congress == 110) %>%
-    ggplot2::ggplot
+    ggplot2::ggplot(
+        mapping = ggplot2::aes(
+            x = dwnom1,
+            y = all_pass,
+            color = Party)) +
+        ggplot2::geom_smooth(formula = y ~ x, method = "lm") +
+        ggplot2::geom_point() +
+        ggplot2::labs(
+            x = "DW Nominate",
+            y = "All Pass",
+            title = "Passage and Ideology, 110th Congress") +
+        ggplot2::scale_color_manual(
+            values = c("Democrat" = "blue", "Republican" = "red"))
+
+# Use the `ggplot` figure to create the `plotly` figure:
+plotly::ggplotly(ggplot_c)
 ```
+
+Page 3
+======
+
+Input {.sidebar}
+----------------
 
 ### Chart D
 
-```{r}
-# Set height of renderPlot. Try height = 750.
-# Use selectInput with multiple = TRUE. All states are initially selected.
-dat %>%
-    dplyr::group_by(st_name) %>%
-    dplyr::filter(congress >= 110) %>%
-    dplyr::summarise(passed = sum(all_pass))
+```{r input_chart_d}
+# Create a vector containing all the state abbreviations in alphabetical order:
+states <- unique(dat$st_name)
+states <- states[!(states %in% c("AS", "DC", "GU", "MP", "PR", "VI"))]
+states <- states[order(states)]
+
+# Create a `selectInput` object for selecting states:
+shiny::selectInput(
+    inputId = "state",
+    label = "State",
+    choices = states,
+    selected = states,
+    multiple = TRUE
+)
+```
+
+Column
+------
+
+```{r chart_d}
+shiny::renderPlot(
+    {
+        dat %>%
+            dplyr::group_by(st_name) %>%
+            dplyr::filter(congress >= 110 & st_name %in% input$state) %>%
+            dplyr::summarise(passed = sum(all_pass)) %>%
+            ggplot2::ggplot(mapping = ggplot2::aes(x = passed, y = st_name)) +
+                ggplot2::geom_col() +
+                ggplot2::labs(
+                    x = "Total Bills Passed Per State",
+                    y = "State Name",
+                    title = paste(
+                        "Total Bills Passed by State Delegations,",
+                        "110th Congress",
+                        collapse = " "))
+    },
+    height = 750
+)
 ```
